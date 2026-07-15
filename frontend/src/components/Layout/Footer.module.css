@@ -32,7 +32,9 @@
 }
 
 .trustIcon {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  color: var(--accent-start);
 }
 
 .divider {
