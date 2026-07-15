@@ -11,7 +11,8 @@ import {
   FileText,
   Presentation,
   TableProperties,
-  PenTool
+  PenTool,
+  Type
 } from 'lucide-react';
 
 export const TOOLS: Tool[] = [
@@ -197,5 +198,15 @@ export const TOOLS: Tool[] = [
     acceptedTypes: { 'application/pdf': ['.pdf'] },
     multiFile: false,
     apiEndpoint: '/api/tools/pdf-to-pages'
+  },
+  {
+    id: 'edit',
+    name: 'Edit PDF',
+    description: 'Add text annotations anywhere on your PDF document.',
+    category: 'edit' as any,
+    icon: Type,
+    acceptedTypes: { 'application/pdf': ['.pdf'] },
+    multiFile: false,
+    apiEndpoint: '/api/tools/edit'
   }
 ];

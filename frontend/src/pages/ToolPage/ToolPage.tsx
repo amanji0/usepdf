@@ -5,6 +5,7 @@ import { uploadAndProcess } from '../../api/client';
 import { useJobPoller } from '../../hooks/useJobPoller';
 import { useFileUpload } from '../../hooks/useFileUpload';
 import FileUpload from '../../components/FileUpload/FileUpload';
+import PdfAnnotator from '../../components/PdfAnnotator/PdfAnnotator';
 import JobProgress from '../../components/JobProgress/JobProgress';
 import styles from './ToolPage.module.css';
 
@@ -54,6 +55,22 @@ const ToolPage = () => {
     }
   };
 
+  const handleSaveAnnotations = async (annotations: any[]) => {
+    if (files.length === 0 || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      // @ts-ignore apiEndpoint exists
+      const response = await uploadAndProcess(tool.apiEndpoint || '/api/tools/edit', files, { annotations: JSON.stringify(annotations) }, false);
+      setJobId(response.job_id);
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleReset = () => {
     setJobId(null);
     clearFiles();
@@ -89,44 +106,50 @@ const ToolPage = () => {
               onRemoveFile={removeFile}
             />
 
-            {files.length > 0 && tool.options && tool.options.length > 0 && (
-              <div className={styles.optionsPanel}>
-                <h3 className={styles.optionsTitle}>Options</h3>
-                <div className={styles.optionsGrid}>
-                  {tool.options.map(opt => (
-                    <div key={opt.name} className={styles.formGroup}>
-                      <label htmlFor={opt.name}>{opt.label}</label>
-                      {opt.type === 'select' ? (
-                        <select
-                          id={opt.name}
-                          value={options[opt.name] || ''}
-                          onChange={(e) => handleOptionChange(opt.name, e.target.value)}
-                          className={styles.input}
-                        >
-                          {opt.choices?.map(choice => (
-                            <option key={choice.value} value={choice.value}>{choice.label}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <input
-                          type={opt.type}
-                          id={opt.name}
-                          value={options[opt.name] || ''}
-                          onChange={(e) => handleOptionChange(opt.name, e.target.value)}
-                          className={styles.input}
-                          placeholder={opt.label}
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
+            {files.length > 0 && tool.id === 'edit' ? (
+              <div style={{ marginTop: '2rem' }}>
+                <PdfAnnotator file={files[0]} onSave={handleSaveAnnotations} />
               </div>
-            )}
+            ) : (
+              <>
+                {files.length > 0 && tool.options && tool.options.length > 0 && (
+                  <div className={styles.optionsPanel}>
+                    <h3 className={styles.optionsTitle}>Options</h3>
+                    <div className={styles.optionsGrid}>
+                      {tool.options.map(opt => (
+                        <div key={opt.name} className={styles.formGroup}>
+                          <label htmlFor={opt.name}>{opt.label}</label>
+                          {opt.type === 'select' ? (
+                            <select
+                              id={opt.name}
+                              value={options[opt.name] || ''}
+                              onChange={(e) => handleOptionChange(opt.name, e.target.value)}
+                              className={styles.input}
+                            >
+                              {opt.choices?.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type={opt.type}
+                              id={opt.name}
+                              value={options[opt.name] || ''}
+                              onChange={(e) => handleOptionChange(opt.name, e.target.value)}
+                              className={styles.input}
+                              placeholder={opt.label}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {files.length > 0 && (
-              <button
-                type="submit"
-                className={`btn-primary ${styles.submitBtn}`}
+                {files.length > 0 && (
+                  <button
+                    type="submit"
+                    className={`btn-primary ${styles.submitBtn}`}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -143,6 +166,8 @@ const ToolPage = () => {
                   </>
                 )}
               </button>
+            )}
+            </>
             )}
           </form>
         ) : (

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, Form, Request, HTTPException, Depends
 from typing import List, Optional
+import json
 import logging
 from app.models import JobResponse
 from app.services.storage import save_upload, save_uploads
 from app.services.validation import validate_pdf, validate_image
-from app.tasks import merge, split, rotate, compress, convert, security, office
+from app.tasks import merge, split, rotate, compress, convert, security, office, edit
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -160,4 +161,19 @@ async def pdf_to_pages(
     file_id, path = await save_upload(file)
     # Reuses the PDF to Word backend which produces a highly accurate .docx file for Apple Pages
     task = office.pdf_to_word.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/edit", response_model=JobResponse)
+async def edit_pdf(
+    request: Request,
+    file: UploadFile = File(...),
+    annotations: str = Form(...)
+):
+    await validate_pdf(file)
+    try:
+        anns = json.loads(annotations)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid annotations JSON")
+    file_id, path = await save_upload(file)
+    task = edit.add_text.delay(str(path), anns, file.filename)
     return JobResponse(job_id=task.id)
