@@ -15,7 +15,7 @@ def add_text(self, input_path: str, annotations: List[Dict], original_filename: 
     """
     try:
         input_p = Path(input_path)
-        output_dir = Path(get_settings().STORAGE_DIR) / self.request.id
+        output_dir = Path(get_settings().RESULT_DIR) / self.request.id
         output_dir.mkdir(parents=True, exist_ok=True)
         
         out_filename = f"edited_{original_filename}"
