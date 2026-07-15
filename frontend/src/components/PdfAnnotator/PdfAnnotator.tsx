@@ -23,6 +23,15 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ file, onSave }) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [currentInput, setCurrentInput] = useState<{x: number, y: number, text: string, x_pct: number, y_pct: number} | null>(null);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setFileUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [file]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
@@ -89,9 +98,10 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ file, onSave }) => {
           boxShadow: 'var(--shadow-card)',
           background: 'white'
       }}>
-        <Document file={file} onLoadSuccess={onDocumentLoadSuccess} loading="Loading PDF...">
-          <div onClick={handlePageClick} style={{ position: 'relative', cursor: 'text' }}>
-            <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotationLayer={false} />
+        {fileUrl && (
+          <Document file={fileUrl} onLoadSuccess={onDocumentLoadSuccess} loading="Loading PDF...">
+            <div onClick={handlePageClick} style={{ position: 'relative', cursor: 'text' }}>
+              <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotationLayer={false} />
             
             {annotations.filter(a => a.page === pageNumber).map((ann, i) => (
               <div key={i} style={{
@@ -135,6 +145,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ file, onSave }) => {
             )}
           </div>
         </Document>
+        )}
       </div>
       
       <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
