@@ -1,0 +1,123 @@
+.container {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: var(--space-10);
+  border-radius: var(--radius-2xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  animation: scaleIn 0.4s var(--ease-out-expo);
+}
+
+.stateContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-4);
+}
+
+.spinnerWrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2.5px solid var(--border-light);
+  border-top-color: var(--accent-start);
+  animation: spin 0.9s linear infinite;
+}
+
+.progressNum {
+  position: absolute;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-start);
+}
+
+.heading {
+  font-size: 1.4rem;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.sub {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: var(--space-2);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  border-radius: var(--radius-full);
+  transition: width 0.4s var(--ease-out-expo);
+}
+
+.indeterminate {
+  width: 40%;
+  animation: indeterminate 1.5s infinite var(--ease-out-expo);
+}
+
+/* Success state */
+.success .heading {
+  color: #34d399;
+}
+
+.successIcon {
+  animation: scaleIn 0.5s var(--ease-spring);
+}
+
+/* Error state */
+.errorState .heading {
+  color: #f87171;
+}
+
+.errorIcon {
+  animation: scaleIn 0.5s var(--ease-spring);
+}
+
+.errorText {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.resetBtn {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.resetBtn:hover {
+  color: var(--text-secondary);
+}
+
+@keyframes indeterminate {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(350%); }
+}

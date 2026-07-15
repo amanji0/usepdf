@@ -1,0 +1,23 @@
+# API & Queue
+fastapi[standard]>=0.139.0
+uvicorn[standard]>=0.30.0
+celery[redis]>=5.6.3
+redis>=6.2.0
+python-multipart>=0.0.9
+slowapi>=0.1.9
+pydantic-settings>=2.0.0
+
+# PDF Core (Phase 1)
+pypdf>=6.14.0
+PyMuPDF>=1.28.0
+img2pdf>=0.6.0
+Pillow>=10.0.0
+
+# Validation
+python-magic>=0.4.27
+
+# Phase 2 (Office Conversion)
+pdf2docx>=0.5.13
+python-pptx>=1.0.2
+pdfplumber>=0.11.10
+openpyxl>=3.1.5
