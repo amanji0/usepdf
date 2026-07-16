@@ -4,10 +4,9 @@ import { fabric } from 'fabric';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
+// @ts-ignore
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.js?url';
+pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
 interface Annotation {
   type: 'text' | 'rect';
@@ -29,6 +28,7 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ file, onSave }) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState(1);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
@@ -338,7 +338,9 @@ const PdfAnnotator: React.FC<PdfAnnotatorProps> = ({ file, onSave }) => {
           <Document 
             file={fileUrl} 
             onLoadSuccess={onDocumentLoadSuccess} 
+            onLoadError={(err) => setLoadError(err.message)}
             loading="Loading PDF..."
+            error={<div style={{ color: 'red', padding: '1rem' }}>Failed to load PDF: {loadError}</div>}
           >
             <div ref={pageWrapperRef} style={{ position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
               {/* The underlying PDF page */}
