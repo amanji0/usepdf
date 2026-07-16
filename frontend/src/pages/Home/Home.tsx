@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TOOLS } from '../../data/tools';
 import { ToolCategory } from '../../types';
 import ToolCard from '../../components/ToolCard/ToolCard';
-import { LayoutGrid, Layers, Zap, RefreshCw, Shield } from 'lucide-react';
+import { LayoutGrid, Layers, Zap, RefreshCw, Shield, Edit3, Sparkles } from 'lucide-react';
 import styles from './Home.module.css';
 
 const CATEGORIES: { id: ToolCategory | 'all'; label: string; icon: any }[] = [
@@ -10,7 +10,9 @@ const CATEGORIES: { id: ToolCategory | 'all'; label: string; icon: any }[] = [
   { id: 'organize', label: 'Organize', icon: Layers },
   { id: 'optimize', label: 'Optimize', icon: Zap },
   { id: 'convert', label: 'Convert', icon: RefreshCw },
+  { id: 'edit', label: 'Edit', icon: Edit3 },
   { id: 'security', label: 'Security', icon: Shield },
+  { id: 'intelligence', label: 'Intelligence', icon: Sparkles },
 ];
 
 const Home = () => {

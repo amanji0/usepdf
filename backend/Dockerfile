@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qpdf \
     libmagic1 \
     curl \
+    tesseract-ocr \
+    libreoffice \
     # WeasyPrint dependencies
     libpango-1.0-0 \
     libpangocairo-1.0-0 \

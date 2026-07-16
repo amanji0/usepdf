@@ -1,4 +1,4 @@
-export type ToolCategory = 'organize' | 'optimize' | 'convert' | 'edit' | 'security';
+export type ToolCategory = 'organize' | 'optimize' | 'convert' | 'edit' | 'security' | 'intelligence';
 
 export interface ToolOption {
   name: string;

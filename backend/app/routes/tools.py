@@ -5,7 +5,7 @@ import logging
 from app.models import JobResponse
 from app.services.storage import save_upload, save_uploads
 from app.services.validation import validate_pdf, validate_image
-from app.tasks import merge, split, rotate, compress, convert, security, office, edit
+from app.tasks import merge, split, rotate, compress, convert, security, office, edit, advanced, intelligence
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -176,4 +176,167 @@ async def edit_pdf(
         raise HTTPException(status_code=400, detail="Invalid annotations JSON")
     file_id, path = await save_upload(file)
     task = edit.add_text.delay(str(path), anns, file.filename)
+    return JobResponse(job_id=task.id)
+
+# --- NEW ADVANCED ROUTES ---
+
+@router.post("/remove-pages", response_model=JobResponse)
+async def remove_pages(request: Request, file: UploadFile = File(...), pages: str = Form("")):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.remove_pages.delay(str(path), pages, file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/extract-pages", response_model=JobResponse)
+async def extract_pages(request: Request, file: UploadFile = File(...), pages: str = Form("")):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.extract_pages.delay(str(path), pages, file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/organize-pdf", response_model=JobResponse)
+async def organize_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.organize_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/scan-to-pdf", response_model=JobResponse)
+async def scan_to_pdf(request: Request, files: List[UploadFile] = File(...)):
+    for f in files:
+        await validate_image(f)
+    saved = await save_uploads(files)
+    file_paths = [str(p) for _, p in saved]
+    task = advanced.scan_to_pdf.delay(file_paths)
+    return JobResponse(job_id=task.id)
+
+@router.post("/repair-pdf", response_model=JobResponse)
+async def repair_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.repair_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/ocr-pdf", response_model=JobResponse)
+async def ocr_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.ocr_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/word-to-pdf", response_model=JobResponse)
+async def word_to_pdf(request: Request, files: List[UploadFile] = File(...)):
+    saved = await save_uploads(files)
+    file_paths = [str(p) for _, p in saved]
+    task = advanced.word_to_pdf.delay(file_paths)
+    return JobResponse(job_id=task.id)
+
+@router.post("/powerpoint-to-pdf", response_model=JobResponse)
+async def powerpoint_to_pdf(request: Request, files: List[UploadFile] = File(...)):
+    saved = await save_uploads(files)
+    file_paths = [str(p) for _, p in saved]
+    task = advanced.powerpoint_to_pdf.delay(file_paths)
+    return JobResponse(job_id=task.id)
+
+@router.post("/excel-to-pdf", response_model=JobResponse)
+async def excel_to_pdf(request: Request, files: List[UploadFile] = File(...)):
+    saved = await save_uploads(files)
+    file_paths = [str(p) for _, p in saved]
+    task = advanced.excel_to_pdf.delay(file_paths)
+    return JobResponse(job_id=task.id)
+
+@router.post("/html-to-pdf", response_model=JobResponse)
+async def html_to_pdf(request: Request, file: UploadFile = File(...)):
+    file_id, path = await save_upload(file)
+    task = advanced.html_to_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/pdf-to-pdfa", response_model=JobResponse)
+async def pdf_to_pdfa(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.pdf_to_pdfa.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/add-page-numbers", response_model=JobResponse)
+async def add_page_numbers(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.add_page_numbers.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/add-watermark", response_model=JobResponse)
+async def add_watermark(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.add_watermark.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/crop-pdf", response_model=JobResponse)
+async def crop_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.crop_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/pdf-forms", response_model=JobResponse)
+async def pdf_forms(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.pdf_forms.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/sign-pdf", response_model=JobResponse)
+async def sign_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.sign_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/redact-pdf", response_model=JobResponse)
+async def redact_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = advanced.redact_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/compare-pdf", response_model=JobResponse)
+async def compare_pdf(request: Request, files: List[UploadFile] = File(...)):
+    if len(files) != 2:
+        raise HTTPException(status_code=400, detail="Compare requires exactly 2 files")
+    for f in files:
+        await validate_pdf(f)
+    saved = await save_uploads(files)
+    file_paths = [str(p) for _, p in saved]
+    task = advanced.compare_pdf.delay(file_paths)
+    return JobResponse(job_id=task.id)
+
+# --- INTELLIGENCE ROUTES ---
+
+@router.post("/ai-summarizer", response_model=JobResponse)
+async def ai_summarizer(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = intelligence.ai_summarize.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/translate-pdf", response_model=JobResponse)
+async def translate_pdf(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = intelligence.translate_pdf.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/pdf-to-markdown", response_model=JobResponse)
+async def pdf_to_markdown(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = intelligence.pdf_to_markdown.delay(str(path), file.filename)
+    return JobResponse(job_id=task.id)
+
+@router.post("/doc-talk", response_model=JobResponse)
+async def doc_talk(request: Request, file: UploadFile = File(...)):
+    await validate_pdf(file)
+    file_id, path = await save_upload(file)
+    task = intelligence.doc_talk.delay(str(path), file.filename)
     return JobResponse(job_id=task.id)
