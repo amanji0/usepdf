@@ -30,15 +30,29 @@ def add_text(self, input_path: str, annotations: List[Dict], original_filename: 
                 continue
             
             page = doc[page_idx]
-            rect = page.rect
-            x = rect.width * ann.get("x_pct", 0)
-            y = rect.height * ann.get("y_pct", 0)
-            text = ann.get("text", "")
-            size = ann.get("size", 12)
+            page_rect = page.rect
+            x = page_rect.width * ann.get("x_pct", 0)
+            y = page_rect.height * ann.get("y_pct", 0)
             
-            # insert text
-            p = fitz.Point(x, y)
-            page.insert_text(p, text, fontsize=size, color=(0,0,0))
+            ann_type = ann.get("type", "text")
+            
+            if ann_type == "rect":
+                w = page_rect.width * ann.get("width_pct", 0.1)
+                h = page_rect.height * ann.get("height_pct", 0.05)
+                # Draw white rectangle
+                shape = page.new_shape()
+                shape.draw_rect(fitz.Rect(x, y, x + w, y + h))
+                shape.finish(color=(1, 1, 1), fill=(1, 1, 1))
+                shape.commit()
+            else:
+                # insert text
+                text = ann.get("text", "")
+                size = ann.get("size", 12)
+                
+                # In Fabric JS, text Y coordinate is top-left, but PyMuPDF point is bottom-left usually depending on descender.
+                # Adding size offset so it roughly matches what user saw on screen.
+                p = fitz.Point(x, y + (size * 0.75))
+                page.insert_text(p, text, fontsize=size, color=(0,0,0))
             
             # Progress update
             self.update_state(state='PROGRESS', meta={'progress': int(((index + 1) / len(annotations)) * 100)})
