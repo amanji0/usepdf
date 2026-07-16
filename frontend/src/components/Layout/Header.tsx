@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { FileBox } from 'lucide-react';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -7,7 +8,7 @@ const Header = () => {
       <div className={styles.container}>
         <Link to="/" className={styles.logoGroup}>
           <div className={styles.logoIcon}>
-            <img src="/logo.jpg" alt="UsePDF Logo" style={{ width: 32, height: 32, borderRadius: 8 }} />
+            <FileBox size={28} color="var(--accent-start)" strokeWidth={2.5} />
           </div>
           <span className={styles.logoText}>
             Use<span className={styles.logoAccent}>PDF</span>

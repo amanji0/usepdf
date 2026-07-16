@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TOOLS } from '../../data/tools';
 import { ToolCategory } from '../../types';
 import ToolCard from '../../components/ToolCard/ToolCard';
-import { LayoutGrid, Layers, Zap, RefreshCw, Shield, Edit3, Sparkles } from 'lucide-react';
+import { LayoutGrid, Layers, Zap, RefreshCw, Shield, Edit3, Sparkles, Search } from 'lucide-react';
 import styles from './Home.module.css';
 
 const CATEGORIES: { id: ToolCategory | 'all'; label: string; icon: any }[] = [
@@ -17,9 +17,15 @@ const CATEGORIES: { id: ToolCategory | 'all'; label: string; icon: any }[] = [
 
 const Home = () => {
   const [activeCategory, setActiveCategory] = useState<ToolCategory | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTools = TOOLS.filter(
-    tool => activeCategory === 'all' || tool.category === activeCategory
+    tool => {
+      const matchesCategory = activeCategory === 'all' || tool.category === activeCategory;
+      const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }
   );
 
   return (
@@ -52,6 +58,17 @@ const Home = () => {
               {cat.label}
             </button>
           ))}
+        </div>
+        
+        <div className={styles.searchContainer}>
+          <Search className={styles.searchIcon} size={20} />
+          <input 
+            type="text" 
+            placeholder="Search for a tool..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+          />
         </div>
 
         <div className={styles.grid}>
