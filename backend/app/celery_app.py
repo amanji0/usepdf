@@ -35,6 +35,8 @@ celery_app.conf.update(
         "app.tasks.security",
         "app.tasks.office",
         "app.tasks.edit",
+        "app.tasks.advanced",
+        "app.tasks.intelligence",
         "app.utils.cleanup",
     ],
     beat_schedule={
