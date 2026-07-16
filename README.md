@@ -36,6 +36,24 @@ docker compose up --build
 http://localhost:5173
 ```
 
+## Production Deployment (VPS)
+
+UsePDF is designed to be easily deployed to a Virtual Private Server (VPS) using Docker Compose and Caddy for automatic HTTPS.
+
+1. SSH into your VPS and install Docker & Docker Compose.
+2. Clone the repository to the server.
+3. Copy the production environment example and configure it:
+   ```bash
+   cp .env.prod.example .env
+   # Edit .env to set your DOMAIN and strong passwords
+   nano .env
+   ```
+4. Run the deployment script:
+   ```bash
+   ./scripts/deploy.sh
+   ```
+The application will automatically provision an SSL certificate for your domain and start securely handling traffic.
+
 ## Aesthetic Design
 
 UsePDF features a premium, responsive Light Mode UI inspired by Apple's design language, utilizing frosted glassmorphism, subtle drop shadows, and clean SVG iconography for a stunning user experience.
