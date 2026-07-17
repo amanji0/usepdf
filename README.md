@@ -54,6 +54,16 @@ UsePDF is designed to be easily deployed to a Virtual Private Server (VPS) using
    ```
 The application will automatically provision an SSL certificate for your domain and start securely handling traffic.
 
+## Free Deployment (Hugging Face Spaces)
+
+You can deploy this entire stack completely for free using Hugging Face Docker Spaces (which provides 16GB RAM for free).
+
+1. Go to [Hugging Face Spaces](https://huggingface.co/spaces) and create a new Space.
+2. Select **Docker** as the Space SDK and choose the **Blank** template.
+3. Once the Space is created, upload the files from this repository to your Space, or link it via GitHub Actions.
+4. Rename `Dockerfile.hf` to `Dockerfile` so Hugging Face uses it to build the image.
+5. Hugging Face will automatically build the unified image (containing Nginx, FastAPI, Celery, and Redis) and serve it on port 7860!
+
 ## Aesthetic Design
 
 UsePDF features a premium, responsive Light Mode UI inspired by Apple's design language, utilizing frosted glassmorphism, subtle drop shadows, and clean SVG iconography for a stunning user experience.

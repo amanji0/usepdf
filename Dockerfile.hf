@@ -1,0 +1,60 @@
+# 1. Build the Frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
+
+# 2. Build the Final Unified Image
+FROM python:3.11-slim
+
+# Create user with UID 1000 required by Hugging Face
+RUN useradd -m -u 1000 user
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ghostscript \
+    qpdf \
+    libmagic1 \
+    curl \
+    tesseract-ocr \
+    libreoffice \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libffi-dev \
+    libcairo2 \
+    redis-server \
+    nginx \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy Backend Python Requirements
+COPY backend/requirements.txt backend/
+RUN pip install --no-cache-dir -r backend/requirements.txt
+
+# Copy Backend Code
+COPY backend/ backend/
+
+# Copy built frontend
+COPY --from=frontend-builder /app/frontend/dist frontend/dist
+
+# Copy configurations
+COPY supervisord.conf .
+COPY nginx.hf.conf .
+
+# Create necessary directories and set permissions for user 1000
+RUN mkdir -p /data/uploads /data/results /tmp/client_temp /tmp/proxy_temp_path /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp \
+    && chown -R user:user /app /data /tmp /var/log/nginx /var/lib/nginx
+
+# Switch to non-root user
+USER 1000
+
+# Expose the port required by Hugging Face
+EXPOSE 7860
+
+# Start supervisord to run all services
+CMD ["supervisord", "-c", "/app/supervisord.conf"]
