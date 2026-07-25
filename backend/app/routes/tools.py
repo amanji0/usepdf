@@ -144,12 +144,13 @@ async def unlock_pdf(
 async def pdf_to_word(
     request: Request,
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    mode: str = Form("layout")
 ):
     await validate_pdf(file)
     file_id, path = await save_upload(file)
     job_id = create_job()
-    background_tasks.add_task(run_task, job_id, office.pdf_to_word, FakeTaskContext(job_id), str(path), file.filename)
+    background_tasks.add_task(run_task, job_id, office.pdf_to_word, FakeTaskContext(job_id), str(path), file.filename, mode)
     return JobResponse(job_id=job_id)
 
 @router.post("/pdf-to-powerpoint", response_model=JobResponse)

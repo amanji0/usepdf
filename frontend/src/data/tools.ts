@@ -249,7 +249,19 @@ export const TOOLS: Tool[] = [
     icon: FileText,
     acceptedTypes: { 'application/pdf': ['.pdf'] },
     multiFile: false,
-    apiEndpoint: '/api/tools/pdf-to-word'
+    apiEndpoint: '/api/tools/pdf-to-word',
+    options: [
+      {
+        name: 'mode',
+        label: 'Conversion Mode',
+        type: 'select',
+        defaultValue: 'layout',
+        choices: [
+          { value: 'layout', label: 'Preserve Layout (may scatter text)' },
+          { value: 'flowing', label: 'Flowing Text (clean editing, no images)' }
+        ]
+      }
+    ]
   },
   {
     id: 'pdf-to-powerpoint',

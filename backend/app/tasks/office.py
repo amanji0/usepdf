@@ -8,22 +8,43 @@ logger = logging.getLogger(__name__)
 
 
 @celery_app.task(bind=True, name="app.tasks.pdf_to_word")
-def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf") -> dict:
+def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", mode: str = "layout") -> dict:
     settings = get_settings()
     stem = Path(original_filename).stem
     output_path = settings.RESULT_DIR / f"{self.request.id}.docx"
     
-    logger.info("Converting %s to DOCX", original_filename)
+    logger.info("Converting %s to DOCX in %s mode", original_filename, mode)
     
     try:
-        from pdf2docx import Converter
-        
-        cv = Converter(input_path)
-        self.update_state(state="PROGRESS", meta={"progress": 50, "filename": f"{stem}.docx"})
-        
-        cv.convert(str(output_path), start=0, end=None)
-        cv.close()
-        
+        if mode == "flowing":
+            import docx
+            import pymupdf
+            
+            doc_out = docx.Document()
+            pdf_in = pymupdf.open(input_path)
+            
+            total = len(pdf_in)
+            for i, page in enumerate(pdf_in):
+                text = page.get_text("text")
+                for paragraph in text.split('\n\n'):
+                    if paragraph.strip():
+                        doc_out.add_paragraph(paragraph.strip().replace('\n', ' '))
+                
+                progress = int(((i + 1) / total) * 100)
+                self.update_state(state="PROGRESS", meta={"progress": progress, "filename": f"{stem}.docx"})
+                
+            doc_out.save(str(output_path))
+            pdf_in.close()
+            
+        else:
+            from pdf2docx import Converter
+            
+            cv = Converter(input_path)
+            self.update_state(state="PROGRESS", meta={"progress": 50, "filename": f"{stem}.docx"})
+            
+            cv.convert(str(output_path), start=0, end=None)
+            cv.close()
+            
         return {"result_path": str(output_path), "filename": f"{stem}.docx"}
     except Exception:
         logger.exception("Error converting PDF to Word")
