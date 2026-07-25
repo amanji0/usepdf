@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: usepdf-api
+    env: docker
+    region: ohio
+    plan: free
+    dockerContext: .
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ENVIRONMENT
+        value: production
+      # Important: REDIS_URL is intentionally omitted as we are now serverless/celery-free.
+      # You can optionally configure OpenAI keys if you use Doc Talk:
+      # - key: OPENAI_API_KEY
+      #   sync: false

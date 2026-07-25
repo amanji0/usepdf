@@ -1,8 +1,6 @@
-# API & Queue
+# API
 fastapi[standard]>=0.139.0
 uvicorn[standard]>=0.30.0
-celery[redis]>=5.6.3
-redis>=6.2.0
 python-multipart>=0.0.9
 slowapi>=0.1.9
 pydantic-settings>=2.0.0
