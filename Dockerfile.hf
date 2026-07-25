@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgdk-pixbuf-2.0-0 \
     libffi-dev \
     libcairo2 \
-    redis-server \
     nginx \
     supervisor \
     && rm -rf /var/lib/apt/lists/*
