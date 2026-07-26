@@ -20,17 +20,35 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
             import docx
             import pymupdf
             
+            from docx.shared import Pt, RGBColor
+            
             doc_out = docx.Document()
             pdf_in = pymupdf.open(input_path)
             
             total = len(pdf_in)
             for i, page in enumerate(pdf_in):
-                blocks = page.get_text("blocks")
+                blocks = page.get_text("dict").get("blocks", [])
                 for b in blocks:
-                    if b[6] == 0:  # text block
-                        text = b[4].strip()
-                        if text:
-                            doc_out.add_paragraph(text.replace('\n', ' '))
+                    if b.get("type") == 0:  # text block
+                        p = doc_out.add_paragraph()
+                        for line in b.get("lines", []):
+                            for span in line.get("spans", []):
+                                text = span.get("text", "")
+                                if text:
+                                    run = p.add_run(text)
+                                    run.font.size = Pt(span.get("size", 11))
+                                    flags = span.get("flags", 0)
+                                    if flags & 16:
+                                        run.font.bold = True
+                                    if flags & 2:
+                                        run.font.italic = True
+                                    color = span.get("color", 0)
+                                    if color != 0:
+                                        try:
+                                            run.font.color.rgb = RGBColor.from_string(f"{color:06x}")
+                                        except Exception:
+                                            pass
+                            p.add_run(" ")
                 
                 progress = int(((i + 1) / total) * 100)
                 self.update_state(state="PROGRESS", meta={"progress": progress, "filename": f"{stem}.docx"})
