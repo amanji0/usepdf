@@ -60,10 +60,10 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
             from pdf2docx import Converter
             
             cv = Converter(input_path)
-            self.update_state(state="PROGRESS", meta={"progress": 50, "filename": f"{stem}.docx"})
-            
+            self.update_state(state="PROGRESS", meta={"progress": 25, "filename": f"{stem}.docx"})
             cv.convert(str(output_path), start=0, end=None)
             cv.close()
+            self.update_state(state="PROGRESS", meta={"progress": 100, "filename": f"{stem}.docx"})
             
         return {"result_path": str(output_path), "filename": f"{stem}.docx"}
     except Exception:

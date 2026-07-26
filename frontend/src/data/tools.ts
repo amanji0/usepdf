@@ -255,10 +255,10 @@ export const TOOLS: Tool[] = [
         name: 'mode',
         label: 'Conversion Mode',
         type: 'select',
-        defaultValue: 'flowing',
+        defaultValue: 'layout',
         choices: [
-          { value: 'layout', label: 'Preserve Layout (may scatter text)' },
-          { value: 'flowing', label: 'Flowing Text (clean editing, no images)' }
+          { value: 'layout', label: 'Exact PDF Layout (Preserves graphics, margins & exact positioning)' },
+          { value: 'flowing', label: 'Editable Text (Flowing text without rigid layout constraints)' }
         ]
       }
     ]
