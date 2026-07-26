@@ -255,7 +255,7 @@ export const TOOLS: Tool[] = [
         name: 'mode',
         label: 'Conversion Mode',
         type: 'select',
-        defaultValue: 'layout',
+        defaultValue: 'flowing',
         choices: [
           { value: 'layout', label: 'Preserve Layout (may scatter text)' },
           { value: 'flowing', label: 'Flowing Text (clean editing, no images)' }

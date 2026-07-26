@@ -25,10 +25,12 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
             
             total = len(pdf_in)
             for i, page in enumerate(pdf_in):
-                text = page.get_text("text")
-                for paragraph in text.split('\n\n'):
-                    if paragraph.strip():
-                        doc_out.add_paragraph(paragraph.strip().replace('\n', ' '))
+                blocks = page.get_text("blocks")
+                for b in blocks:
+                    if b[6] == 0:  # text block
+                        text = b[4].strip()
+                        if text:
+                            doc_out.add_paragraph(text.replace('\n', ' '))
                 
                 progress = int(((i + 1) / total) * 100)
                 self.update_state(state="PROGRESS", meta={"progress": progress, "filename": f"{stem}.docx"})
