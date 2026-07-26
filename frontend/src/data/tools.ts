@@ -250,18 +250,7 @@ export const TOOLS: Tool[] = [
     acceptedTypes: { 'application/pdf': ['.pdf'] },
     multiFile: false,
     apiEndpoint: '/api/tools/pdf-to-word',
-    options: [
-      {
-        name: 'mode',
-        label: 'Conversion Mode',
-        type: 'select',
-        defaultValue: 'layout',
-        choices: [
-          { value: 'layout', label: 'Exact PDF Layout (Preserves graphics, margins & exact positioning)' },
-          { value: 'flowing', label: 'Editable Text (Flowing text without rigid layout constraints)' }
-        ]
-      }
-    ]
+    options: []
   },
   {
     id: 'pdf-to-powerpoint',
