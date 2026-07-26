@@ -31,12 +31,17 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
                 page_width_in = rect.width / 72.0
                 page_height_in = rect.height / 72.0
                 
-                text_bbox = first_page.get_text("rect")
-                if text_bbox and not text_bbox.is_empty:
-                    top_m = max(0.25, text_bbox.y0 / 72.0 - 0.1)
-                    bot_m = max(0.25, (rect.height - text_bbox.y1) / 72.0 - 0.1)
-                    left_m = max(0.25, text_bbox.x0 / 72.0 - 0.1)
-                    right_m = max(0.25, (rect.width - text_bbox.x1) / 72.0 - 0.1)
+                blocks = first_page.get_text("blocks")
+                valid_blocks = [b for b in blocks if len(b) > 4 and str(b[4]).strip()]
+                if valid_blocks:
+                    min_x0 = min(b[0] for b in valid_blocks)
+                    min_y0 = min(b[1] for b in valid_blocks)
+                    max_x1 = max(b[2] for b in valid_blocks)
+                    max_y1 = max(b[3] for b in valid_blocks)
+                    top_m = max(0.2, min_y0 / 72.0 - 0.05)
+                    bot_m = max(0.2, (rect.height - max_y1) / 72.0 - 0.05)
+                    left_m = max(0.2, min_x0 / 72.0 - 0.05)
+                    right_m = max(0.2, (rect.width - max_x1) / 72.0 - 0.05)
                 else:
                     top_m = bot_m = left_m = right_m = 0.35
 
@@ -55,8 +60,8 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
                     if b.get("type") == 0:  # text block
                         p = doc_out.add_paragraph()
                         p.paragraph_format.space_before = Pt(0)
-                        p.paragraph_format.space_after = Pt(2)
-                        p.paragraph_format.line_spacing = 1.05
+                        p.paragraph_format.space_after = Pt(1)
+                        p.paragraph_format.line_spacing = 1.0
                         for line in b.get("lines", []):
                             for span in line.get("spans", []):
                                 text = span.get("text", "")
@@ -102,12 +107,17 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
                     page_width_in = rect.width / 72.0
                     page_height_in = rect.height / 72.0
                     
-                    text_bbox = first_page.get_text("rect")
-                    if text_bbox and not text_bbox.is_empty:
-                        top_m = max(0.25, text_bbox.y0 / 72.0 - 0.1)
-                        bot_m = max(0.25, (rect.height - text_bbox.y1) / 72.0 - 0.1)
-                        left_m = max(0.25, text_bbox.x0 / 72.0 - 0.1)
-                        right_m = max(0.25, (rect.width - text_bbox.x1) / 72.0 - 0.1)
+                    blocks = first_page.get_text("blocks")
+                    valid_blocks = [b for b in blocks if len(b) > 4 and str(b[4]).strip()]
+                    if valid_blocks:
+                        min_x0 = min(b[0] for b in valid_blocks)
+                        min_y0 = min(b[1] for b in valid_blocks)
+                        max_x1 = max(b[2] for b in valid_blocks)
+                        max_y1 = max(b[3] for b in valid_blocks)
+                        top_m = max(0.2, min_y0 / 72.0 - 0.05)
+                        bot_m = max(0.2, (rect.height - max_y1) / 72.0 - 0.05)
+                        left_m = max(0.2, min_x0 / 72.0 - 0.05)
+                        right_m = max(0.2, (rect.width - max_x1) / 72.0 - 0.05)
                     else:
                         top_m = bot_m = left_m = right_m = 0.35
 
@@ -121,17 +131,17 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
                         section.right_margin = Inches(right_m)
 
                     for p in doc_mod.paragraphs:
-                        if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 4:
-                            p.paragraph_format.space_after = Pt(2)
-                        p.paragraph_format.line_spacing = 1.05
+                        p.paragraph_format.space_before = Pt(0)
+                        p.paragraph_format.space_after = Pt(1)
+                        p.paragraph_format.line_spacing = 1.0
 
                     for t in doc_mod.tables:
                         for row in t.rows:
                             for cell in row.cells:
                                 for p in cell.paragraphs:
-                                    if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 4:
-                                        p.paragraph_format.space_after = Pt(2)
-                                    p.paragraph_format.line_spacing = 1.05
+                                    p.paragraph_format.space_before = Pt(0)
+                                    p.paragraph_format.space_after = Pt(1)
+                                    p.paragraph_format.line_spacing = 1.0
 
                     doc_mod.save(str(output_path))
                 pdf_in.close()

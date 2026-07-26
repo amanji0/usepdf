@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     """Central configuration loaded from environment variables."""
 
     REDIS_URL: str = "redis://redis:6379/0"
-    UPLOAD_DIR: Path = Path("/data/uploads")
-    RESULT_DIR: Path = Path("/data/results")
+    UPLOAD_DIR: Path = Path("./data/uploads")
+    RESULT_DIR: Path = Path("./data/results")
     MAX_FILE_SIZE_MB: int = 100
     FILE_TTL_SECONDS: int = 3600
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
