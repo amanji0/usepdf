@@ -130,13 +130,29 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
                         section.left_margin = Inches(left_m)
                         section.right_margin = Inches(right_m)
 
+                    from docx.oxml import parse_xml
+                    from docx.oxml.ns import nsdecls
+
                     for p in doc_mod.paragraphs:
                         p.paragraph_format.space_before = Pt(0)
                         p.paragraph_format.space_after = Pt(1)
                         p.paragraph_format.line_spacing = 1.0
 
                     for t in doc_mod.tables:
+                        try:
+                            tblPr = t._tbl.tblPr
+                            tblCellMar = parse_xml(r'<w:tblCellMar %s><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar>' % nsdecls('w'))
+                            tblPr.append(tblCellMar)
+                        except Exception:
+                            pass
+
                         for row in t.rows:
+                            try:
+                                trPr = row._tr.get_or_add_trPr()
+                                trPr.append(parse_xml(r'<w:cantSplit %s/>' % nsdecls('w')))
+                            except Exception:
+                                pass
+
                             for cell in row.cells:
                                 for p in cell.paragraphs:
                                     p.paragraph_format.space_before = Pt(0)
