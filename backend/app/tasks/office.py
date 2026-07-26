@@ -19,18 +19,44 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
         if mode == "flowing":
             import docx
             import pymupdf
+            from docx.shared import Inches, Pt, RGBColor
             
-            from docx.shared import Pt, RGBColor
-            
-            doc_out = docx.Document()
             pdf_in = pymupdf.open(input_path)
+            doc_out = docx.Document()
             
+            # Apply exact geometry from first page
+            if len(pdf_in) > 0:
+                first_page = pdf_in[0]
+                rect = first_page.rect
+                page_width_in = rect.width / 72.0
+                page_height_in = rect.height / 72.0
+                
+                text_bbox = first_page.get_text("rect")
+                if text_bbox and not text_bbox.is_empty:
+                    top_m = max(0.25, text_bbox.y0 / 72.0 - 0.1)
+                    bot_m = max(0.25, (rect.height - text_bbox.y1) / 72.0 - 0.1)
+                    left_m = max(0.25, text_bbox.x0 / 72.0 - 0.1)
+                    right_m = max(0.25, (rect.width - text_bbox.x1) / 72.0 - 0.1)
+                else:
+                    top_m = bot_m = left_m = right_m = 0.35
+
+                for section in doc_out.sections:
+                    section.page_width = Inches(page_width_in)
+                    section.page_height = Inches(page_height_in)
+                    section.top_margin = Inches(top_m)
+                    section.bottom_margin = Inches(bot_m)
+                    section.left_margin = Inches(left_m)
+                    section.right_margin = Inches(right_m)
+
             total = len(pdf_in)
             for i, page in enumerate(pdf_in):
                 blocks = page.get_text("dict").get("blocks", [])
                 for b in blocks:
                     if b.get("type") == 0:  # text block
                         p = doc_out.add_paragraph()
+                        p.paragraph_format.space_before = Pt(0)
+                        p.paragraph_format.space_after = Pt(2)
+                        p.paragraph_format.line_spacing = 1.05
                         for line in b.get("lines", []):
                             for span in line.get("spans", []):
                                 text = span.get("text", "")
@@ -57,12 +83,61 @@ def pdf_to_word(self, input_path: str, original_filename: str = "document.pdf", 
             pdf_in.close()
             
         else:
+            import docx
+            import pymupdf
+            from docx.shared import Inches, Pt
             from pdf2docx import Converter
             
             cv = Converter(input_path)
             self.update_state(state="PROGRESS", meta={"progress": 25, "filename": f"{stem}.docx"})
             cv.convert(str(output_path), start=0, end=None)
             cv.close()
+            
+            # Post-process generated DOCX to match exact PDF page margins & prevent page overflow
+            try:
+                pdf_in = pymupdf.open(input_path)
+                if len(pdf_in) > 0:
+                    first_page = pdf_in[0]
+                    rect = first_page.rect
+                    page_width_in = rect.width / 72.0
+                    page_height_in = rect.height / 72.0
+                    
+                    text_bbox = first_page.get_text("rect")
+                    if text_bbox and not text_bbox.is_empty:
+                        top_m = max(0.25, text_bbox.y0 / 72.0 - 0.1)
+                        bot_m = max(0.25, (rect.height - text_bbox.y1) / 72.0 - 0.1)
+                        left_m = max(0.25, text_bbox.x0 / 72.0 - 0.1)
+                        right_m = max(0.25, (rect.width - text_bbox.x1) / 72.0 - 0.1)
+                    else:
+                        top_m = bot_m = left_m = right_m = 0.35
+
+                    doc_mod = docx.Document(str(output_path))
+                    for section in doc_mod.sections:
+                        section.page_width = Inches(page_width_in)
+                        section.page_height = Inches(page_height_in)
+                        section.top_margin = Inches(top_m)
+                        section.bottom_margin = Inches(bot_m)
+                        section.left_margin = Inches(left_m)
+                        section.right_margin = Inches(right_m)
+
+                    for p in doc_mod.paragraphs:
+                        if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 4:
+                            p.paragraph_format.space_after = Pt(2)
+                        p.paragraph_format.line_spacing = 1.05
+
+                    for t in doc_mod.tables:
+                        for row in t.rows:
+                            for cell in row.cells:
+                                for p in cell.paragraphs:
+                                    if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 4:
+                                        p.paragraph_format.space_after = Pt(2)
+                                    p.paragraph_format.line_spacing = 1.05
+
+                    doc_mod.save(str(output_path))
+                pdf_in.close()
+            except Exception as e:
+                logger.warning(f"Could not post-process DOCX geometry: {e}")
+
             self.update_state(state="PROGRESS", meta={"progress": 100, "filename": f"{stem}.docx"})
             
         return {"result_path": str(output_path), "filename": f"{stem}.docx"}
